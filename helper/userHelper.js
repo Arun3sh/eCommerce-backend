@@ -36,6 +36,35 @@ async function addToCart(id, data) {
 	return await client
 		.db('ecommerce')
 		.collection('user')
-		.updateOne({ _id: ObjectId(id) }, { $push: { user_cart: data } }, { upsert: true });
+		.updateOne(
+			{
+				_id: ObjectId(id),
+			},
+			{ $push: { user_cart: data } },
+			{ upsert: true }
+		);
 }
-export { getAllUser, genPassword, createUser, validateUser, createNewOrder, addToCart };
+
+async function updateAddToCart(id, data) {
+	return await client
+		.db('ecommerce')
+		.collection('user')
+		.updateOne(
+			{
+				_id: ObjectId(id),
+				user_cart: { $elemMatch: { _id: data._id } },
+			},
+			{ $set: { 'user_cart.$[cart].qty': data.qty } },
+			{ arrayFilters: [{ 'cart._id': data._id }] }
+		);
+}
+
+export {
+	getAllUser,
+	genPassword,
+	createUser,
+	validateUser,
+	createNewOrder,
+	addToCart,
+	updateAddToCart,
+};
