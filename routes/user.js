@@ -67,11 +67,24 @@ router.post('/login-user', async (request, response) => {
 });
 
 // Add to cart
-router.put('/add-to-cart', async (request, response) => {
+router.put('/add-to-cart/:id', async (request, response) => {
 	const data = request.body;
 	const { id } = request.params;
+
 	const add = await addToCart(id, data);
 	response.send(add);
+});
+
+// Create new order
+router.put('/create-order', auth, async (request, response) => {
+	const data = request.body;
+	const { id } = request.params;
+
+	// Has to edit on how to change value in helper
+	const reduceQty = await reduceProductQty(data._id, selected_qty);
+	console.log(reduceQty);
+	const create_order = await createNewOrder(id, data);
+	response.send(create_order);
 });
 
 export const userRouter = router;

@@ -1,7 +1,19 @@
 import express from 'express';
-import { getFilteredProduct, addProduct } from '../helper/product_helper.js';
+import { response } from 'express';
+import {
+	getHomepage,
+	getFilteredProduct,
+	addProduct,
+	addHomeProduct,
+} from '../helper/product_helper.js';
 
 const router = express.Router();
+
+// To get home page products
+router.get('/homepage', async (request, response) => {
+	const home = await getHomepage();
+	response.send(home);
+});
 
 // To get product based on query
 router.get('/', async (request, response) => {
@@ -60,6 +72,19 @@ router.post('/add-product', async (request, response) => {
 	const data = request.body;
 	const add = await addProduct(data);
 	response.send(add);
+});
+
+// To add multiple products
+router.post('/add-home-product', async (request, response) => {
+	const data = request.body;
+	const add = await addHomeProduct(data);
+	response.send(add);
+});
+
+// To remove product
+router.delete('/:id', async (request, response) => {
+	const { id } = request.params;
+	response.send('wait');
 });
 
 export const productRouter = router;
