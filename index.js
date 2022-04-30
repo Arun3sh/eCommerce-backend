@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 import { userRouter } from './routes/user.js';
 import { productRouter } from './routes/product.js';
+import { paymentRouter } from './routes/payment.js';
 
 dotenv.config();
 
@@ -30,5 +31,6 @@ app.get('/', (request, response) => {
 
 app.use('/user', userRouter);
 app.use('/product', productRouter);
+app.use('/payment', paymentRouter);
 
 app.listen(PORT, () => console.log('server started', PORT));

@@ -1,5 +1,6 @@
 import express from 'express';
 import { response } from 'express';
+import { ObjectId } from 'mongodb';
 import {
 	getHomepage,
 	getFilteredProduct,
@@ -15,15 +16,22 @@ router.get('/homepage', async (request, response) => {
 	response.send(home);
 });
 
+// To get product based on id
+router.get('/:id', async (request, response) => {
+	const { id } = request.params;
+	const result = await getFilteredProduct({ _id: ObjectId(id) });
+	response.send(result);
+});
+
 // To get product based on query
 router.get('/', async (request, response) => {
 	const filter = request.query;
 
 	// Filter by price, category
-	if (filter.category && filter.priceabove & filter.priceunder) {
+	if (filter.category && filter.Starting & filter.Under) {
 		const filterProduct = await getFilteredProduct({
 			category: filter.category,
-			price: { $gte: +filter.priceabove, $lte: +filter.priceunder },
+			price: { $gte: +filter.Starting, $lte: +filter.Under },
 		});
 
 		response.send(filterProduct);
@@ -31,9 +39,9 @@ router.get('/', async (request, response) => {
 	}
 
 	// Filter by price
-	if (filter.priceabove && filter.priceunder) {
+	if (filter.Starting && filter.Under) {
 		const filterProduct = await getFilteredProduct({
-			price: { $gte: +filter.priceabove, $lte: +filter.priceunder },
+			price: { $gte: +filter.Starting, $lte: +filter.Under },
 		});
 
 		response.send(filterProduct);
@@ -41,10 +49,10 @@ router.get('/', async (request, response) => {
 	}
 
 	// Filter by category and price under
-	if (filter.category && filter.priceunder) {
+	if (filter.category && filter.Under) {
 		const filterProduct = await getFilteredProduct({
 			category: filter.category,
-			price: { $lte: +filter.priceunder },
+			price: { $lte: +filter.Under },
 		});
 
 		response.send(filterProduct);
@@ -52,13 +60,29 @@ router.get('/', async (request, response) => {
 	}
 
 	// Filter by category and price above
-	if (filter.category && filter.priceabove) {
+	if (filter.category && filter.Starting) {
 		const filterProduct = await getFilteredProduct({
 			category: filter.category,
-			price: { $gte: +filter.priceabove },
+			price: { $gte: +filter.Starting },
 		});
 
 		response.send(filterProduct);
+		return;
+	}
+
+	if (filter.category && filter.search) {
+		if (filter.category === 'All Categories') {
+			const searchProduct = await getFilteredProduct({
+				product_name: { $regex: filter.search, $options: 'i' },
+			});
+			response.send(searchProduct);
+			return;
+		}
+		const searchProductWithCat = await getFilteredProduct({
+			category: filter.category,
+			product_name: { $regex: filter.search, $options: 'i' },
+		});
+		response.send(searchProductWithCat);
 		return;
 	}
 
